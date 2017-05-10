@@ -5,9 +5,14 @@
 </head>
 <body>
 
-    <ul> <% for(var key in urls) { %>
-    <li> <%= key + ": " +urls[key]%></li>
+  <ul>
+     <% for(const key in urls) { %>
+    <li>
+      <%= key + ": " +urls[key]%></li>
+       <form action="/urls/<%= key %>/delete" method="POST">
+         <button> Delete</button>
     <% } %>
     </ul>
+
 </body>
 </html>

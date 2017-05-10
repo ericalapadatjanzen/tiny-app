@@ -4,8 +4,17 @@
   <%- include partials/_header.ejs %>
 </head>
 <body>
-    <h1> <%= shortURL%> </h1>
-    <h1> <%= longURL%> </h1>
+
+<h1> ShortURL <%= shortURL%> </h1>
+<form action="/urls/<%= shortURL %>" method="post">
+  <p>
+    <input id="long-url-input" name="newLongURL" value="<%= longURL%>">
+  </p>
+
+    <button>Update</button>
+  </p>
+</form>
+
 
 </body>
 </html>
