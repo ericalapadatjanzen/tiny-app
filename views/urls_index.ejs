@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <%- include partials/_header.ejs %>
+<title> Tiny App</title>
 </head>
 <body>
-
+ <%- include partials/_header.ejs %>
   <ul>
      <% for(const key in urls) { %>
     <li>
       <%= key + ": " +urls[key]%></li>
        <form action="/urls/<%= key %>/delete" method="POST">
-         <button> Delete</button>
+        <a href="/urls/<%= key %>"> Edit</a>
+         <button> Delete </button>
     <% } %>
     </ul>
 

@@ -1,7 +1,9 @@
-"use strict";
+// "use strict";
 
 const express = require("express");
+const cookieParser = require('cookie-parser')
 const app = express();
+app.use(cookieParser());
 const PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -26,11 +28,16 @@ function generateRandomString() {
 
 
 
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 app.get("/urls", (req, res) => {
-  let templateconsts = { urls: urlDatabase };
+  const username = req.cookies["username"];
+  let templateconsts = {
+  urls: urlDatabase,
+  username
+};
   res.render("urls_index", templateconsts);
 });
 app.get("/urls/new", (req, res) => {
@@ -62,6 +69,14 @@ app.post('/urls/:id/delete', (req, res) => {
 });
 app.post('/urls/:id/', (req, res) => {
   urlDatabase[req.params.id] = req.body.newLongURL;
+  res.redirect('/urls');
+});
+app.post('/login', (req, res) =>{
+  res.cookie('username', req.body.username);
+  res.redirect('/urls');
+})
+app.post('/logout', (req, res) =>{
+  res.clearCookie('username');
   res.redirect('/urls');
 });
 
