@@ -20,6 +20,19 @@ var urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
 function generateRandomString() {
   let text = "";
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -87,6 +100,11 @@ app.get('/register', (req, res) =>{
 });
 
 app.post('/register', (req, res) =>{
+  let randomUserID = generateRandomString();
+  users[randomUserID] = {id: randomUserID, email: req.body.email, password: req.body.password}
+  console.log(users[randomUserID]);
+  console.log(users);
+  res.cookie("userID", randomUserID)
   res.redirect('/urls');
 });
 
