@@ -6,14 +6,15 @@
 <body>
  <%- include partials/_header.ejs %>
   <ul>
-     <% for(const key in urls) { %>
-    <li>
-      <%= key + ": " +urls[key]%></li>
+     <% for(var key in urls) { %>
+    <li><%= key + ": " +urls[key]%></li>
        <form action="/urls/<%= key %>/delete" method="POST">
         <a href="/urls/<%= key %>"> Edit</a>
          <button> Delete </button>
+       </form>
     <% } %>
     </ul>
+  
 
 </body>
 </html>
