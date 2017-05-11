@@ -62,7 +62,6 @@ app.get("/u/:shortURL", (req, res) => {
   let longURL = urlDatabase[short];
   res.redirect(longURL);
 });
-
 app.post('/urls/:id/delete', (req, res) => {
   let keyId = req.params.id;
   delete urlDatabase[keyId];
@@ -75,9 +74,19 @@ app.post('/urls/:id/', (req, res) => {
 app.post('/login', (req, res) =>{
   res.cookie('username', req.body.username);
   res.redirect('/urls');
-})
+});
 app.post('/logout', (req, res) =>{
   res.clearCookie('username');
+  res.redirect('/urls');
+});
+
+
+
+app.get('/register', (req, res) =>{
+  res.render('urls_registration');
+});
+
+app.post('/register', (req, res) =>{
   res.redirect('/urls');
 });
 
