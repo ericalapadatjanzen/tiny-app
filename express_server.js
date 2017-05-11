@@ -100,12 +100,23 @@ app.get('/register', (req, res) =>{
 });
 
 app.post('/register', (req, res) =>{
+  if(!req.body.email || !req.body.password){
+    res.status(400).send('Email or Password not entered');
+    return;
+  }
+  for(let user in users){
+  if(users[user].email === req.body.email ){
+    res.status(400).send('Email already exists');
+    return;
+  }
+  }
   let randomUserID = generateRandomString();
   users[randomUserID] = {id: randomUserID, email: req.body.email, password: req.body.password}
   console.log(users[randomUserID]);
   console.log(users);
   res.cookie("userID", randomUserID)
   res.redirect('/urls');
+  
 });
 
 
