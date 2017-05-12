@@ -16,20 +16,24 @@ app.use(function(req, res, next){
 });
 
 var urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "userRandomID": {
+    "b2xVn2": "http://www.lighthouselabs.ca"
+  },
+  "user2RandomID": {
+    "9sm5xK": "http://www.google.com"
+  }
 };
 
 const users = { 
   "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+    password: "bob"
   },
  "user2RandomID": {
     id: "user2RandomID", 
     email: "user2@example.com", 
-    password: "dishwasher-funk"
+    password: "poop"
   }
 }
 
@@ -49,19 +53,28 @@ function generateRandomString() {
 app.get("/urls", (req, res) => {
   let userid = req.cookies["user_id"];
   let templateVars = {
-     urls: urlDatabase,
+     urls: urlDatabase[userid],
      user: users[userid]
   };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+ let user_ID = req.cookies['user_id'];
+ if (users[user_ID]) {
+   res.render("urls_new");
+  } else{
+    res.redirect('/login');
+  }
 });
 
 app.post("/urls", (req, res) => {
+  let user_ID = req.cookies['user_id'];
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
+  const longURL = req.body.longURL;
+
+  if (!urlDatabase[user_ID]) { urlDatabase[user_ID] = {}; }
+  urlDatabase[user_ID][shortURL]= longURL
   res.redirect('/urls/' + shortURL);
 });
 
