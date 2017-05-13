@@ -16,23 +16,27 @@ app.use(function(req, res, next){
 });
 
 var urlDatabase = {
-  "userRandomID": {
-    "b2xVn2": "http://www.lighthouselabs.ca"
+   "b2xVn2": {
+    id: "b2xVn2",
+    longURL: "http://lighthouselabs.ca",
+    userID: "userRandomID"
   },
-  "user2RandomID": {
-    "9sm5xK": "http://www.google.com"
+   "9sm5xK": {
+    id: "b2xVn2",
+    longURL: "http://www.google.com",
+    userID: "user2RandomId"
   }
 };
 
-const users = { 
+const users = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "bob"
   },
  "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "poop"
   }
 }
@@ -47,16 +51,36 @@ function generateRandomString() {
     return text;
 }
 
+function urlsForUser(userID) {
+  const urls = {};
+  for (const shortURL in urlDatabase) {
+    if (urlDatabase[shortURL].userID === userID) {
+      urls[shortURL] = urlDatabase[shortURL];
+    }
+  }
+  return urls;
+}
+
 
 
 
 app.get("/urls", (req, res) => {
   let userid = req.cookies["user_id"];
+  let filtered = urlsForUser(userid);
+  console.log(filtered)
   let templateVars = {
-     urls: urlDatabase[userid],
+     urls: filtered,
      user: users[userid]
   };
   res.render("urls_index", templateVars);
+});
+
+app.post("/urls", (req, res) => {
+  let user_ID = req.cookies['user_id'];
+  const shortURL = generateRandomString();
+  const longURL = req.body.longURL;
+  urlDatabase[shortURL] = {id: shortURL, longURL: longURL, userID: user_ID};
+  res.redirect('/urls/' + shortURL);
 });
 
 app.get("/urls/new", (req, res) => {
@@ -68,36 +92,35 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-app.post("/urls", (req, res) => {
-  let user_ID = req.cookies['user_id'];
-  const shortURL = generateRandomString();
-  const longURL = req.body.longURL;
 
-  if (!urlDatabase[user_ID]) { urlDatabase[user_ID] = {}; }
-  urlDatabase[user_ID][shortURL]= longURL
-  res.redirect('/urls/' + shortURL);
-});
 
 app.get("/urls/:id", (req, res) => {
+  let userAccess = req.cookies['user_id'];
+  // if(!urlDatabase[userAccess]){
+  //   res.send('You are not logged in');
+  //  }
+  let filtered = urlsForUser(userAccess);
   let shortURL = req.params.id;
-  let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL] };
+  let longURL = urlDatabase[shortURL].longURL;
+  let templateVars = { shortURL: shortURL, longURL: longURL};
   res.render("urls_show", templateVars);
+});
+
+app.post('/urls/:id/', (req, res) => {
+  urlDatabase[req.params.id].longURL = req.body.newLongURL;
+  console.log("urlDatabase[req.params.id].longURL", urlDatabase[req.params.id].longURL)
+  res.redirect('/urls');
 });
 
 app.get("/u/:shortURL", (req, res) => {
   let short = req.params.shortURL;
-  let longURL = urlDatabase[short];
+  let longURL = urlDatabase[short].longURL;
   res.redirect(longURL);
 });
 
 app.post('/urls/:id/delete', (req, res) => {
-  let keyId = req.params.id;
-  delete urlDatabase[keyId];
-  res.redirect('/urls');
-});
-
-app.post('/urls/:id/', (req, res) => {
-  urlDatabase[req.params.id] = req.body.newLongURL;
+  // let keyId = req.cookies['user_id'];
+  delete urlDatabase[req.params.id];
   res.redirect('/urls');
 });
 
@@ -106,20 +129,21 @@ app.get('/login', (req, res) =>{
 });
 
 app.post('/login', (req, res) =>{
-    if(!req.body.email || !req.body.password){
+  if(!req.body.email || !req.body.password){
     res.status(403).send('Please enter both email and password');
-      return;
+    return;
   }
-    for(let user in users){
-      if(users[user].email === req.body.email){
-        if(users[user].password === req.body.password){
-          res.cookie('user_id', users[user].id);
-          res.redirect('/urls');
+  for(let user in users){
+    if(users[user].email === req.body.email){
+      if(users[user].password === req.body.password){
+        res.cookie('user_id', users[user].id);
+        res.redirect('/urls');
+        return;
       } else {
         res.status(403).send('User password is not a match');
         return;
       }
-    } 
+    }
   }
   res.status(403).send('Email does not exist');
 });

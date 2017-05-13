@@ -6,7 +6,7 @@
 <body>
    <%- include partials/_header.ejs %>
 <h1> ShortURL <%= shortURL%> </h1>
-<form action="/urls/<%= shortURL %>" method="post">
+<form action="/urls/<%=shortURL %>" method="POST">
   <p>
     <input id="long-url-input" name="newLongURL" value="<%= longURL%>">
   </p>
