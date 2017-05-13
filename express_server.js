@@ -96,12 +96,13 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   let userAccess = req.cookies['user_id'];
-  // if(!urlDatabase[userAccess]){
-  //   res.send('You are not logged in');
-  //  }
+  if(!urlDatabase[userAccess]){
+    res.status(401).send('You do not have access to this page');
+   }
   let filtered = urlsForUser(userAccess);
   let shortURL = req.params.id;
   let longURL = urlDatabase[shortURL].longURL;
+
   let templateVars = { shortURL: shortURL, longURL: longURL};
   res.render("urls_show", templateVars);
 });
@@ -119,9 +120,14 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.post('/urls/:id/delete', (req, res) => {
-  // let keyId = req.cookies['user_id'];
-  delete urlDatabase[req.params.id];
-  res.redirect('/urls');
+  let userID = req.cookies['user_id'];
+   if (users[userID]) {
+   delete urlDatabase[req.params.id];
+    res.redirect('/urls');
+    return;
+  } else{
+    res.redirect('/login');
+  }
 });
 
 app.get('/login', (req, res) =>{
