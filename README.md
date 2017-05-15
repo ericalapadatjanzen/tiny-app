@@ -1,11 +1,11 @@
-#TinyApp Project
+# TinyApp Project
 
 
 :+1::+1::+1::+1::+1::+1::+1::+1::+1::+1::+1:
 
 TinyApp is a full stack web application built with Node and Express. This link management solution allows you to take a long URL and shorten to for ease of sharing.
 
-#Final Product
+# Final Product
 
 "Screenshot of the URLs page"
 !["Urls Page"](https://github.com/ericalapadatjanzen/tiny-app/blob/master/docs/urls-page.png?raw=true)
@@ -20,7 +20,7 @@ TinyApp is a full stack web application built with Node and Express. This link m
 
 
 
-#Dependencies
+# Dependencies
 
   * Node.js
   * Express
@@ -30,7 +30,7 @@ TinyApp is a full stack web application built with Node and Express. This link m
   * cookie session
 
 
-##Getting Started
+## Getting Started
 
 
 - Install all dependencies using the "npm install" command.
