@@ -119,7 +119,6 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   let user_ID = req.session['user_id'];
-  let filtered = urlsForUser(user_ID);
   let shortURL = req.params.id;
   let longURL = urlDatabase[shortURL].longURL;
   let templateVars = {
