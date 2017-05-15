@@ -1,11 +1,15 @@
-
- <h1>Tiny App</h1>
-
-  <a href="/register"> Register</a>
-   <a href="/login"> Login</a>
-    <% if (user_id){ %>
-       
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+</head>
+<body>
+  <header>
+    <h1>Tiny App</h1><%if (user_id){ %>
+    <p>Hello <%= user.email %>!</p><br>
     <form action="/logout" method="post">
-    <button> Logout</button>
-    </form>
-  <% } %>
+      <button>Logout</button>
+    </form><%} else {%> <a href="/register">Register</a> <a href="/login">Login</a> <%} %>
+  </header>
+</body>
+</html>

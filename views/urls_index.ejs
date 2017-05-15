@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title> Tiny App</title>
+  <title>Tiny App</title>
 </head>
 <body>
- <%- include partials/_header.ejs %>
+  <%- include partials/_header.ejs %><br>
+  <br>
+  <%if (user_id){ %> <a href="/urls/new">Create a New Short Link</a><br>
+  <br>
   <ul>
-     <% for(var key in urls) { %>
+    <%for(var key in urls) { %>
     <li><%= key + ": " +urls[key].longURL%></li>
-       <form action="/urls/<%= key %>/delete" method="POST">
-        <a href="/urls/<%= key %>"> Edit</a>
-         <button> Delete </button>
-       </form>
-    <% } %>
-    </ul>
-
-
+    <li style="list-style: none; display: inline">
+      <form action="/urls/%3C%=%20key%20%%3E/delete" method="post">
+        <a href="/urls/%3C%=%20key%20%%3E">Edit</a> <button>Delete</button>
+      </form><%} %><%} %>
+    </li>
+  </ul>
 </body>
 </html>
