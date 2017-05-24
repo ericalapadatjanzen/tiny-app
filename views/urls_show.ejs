@@ -5,8 +5,8 @@
 </head>
 <body>
   <%- include partials/_header.ejs %>
-  <h1>ShortURL <%= shortURL%></h1>
-  <form action="/urls/%3C%=shortURL%20%%3E" method="post">
+  <h1>ShortURL <%= shortURL%></h1><a href="/u/%3C%=%20shortURL%%3E">Go to your shortened URL : <%= shortURL%></a>
+  <form action="/urls/%3C%=%20shortURL%%3E" method="post">
     <p><input id="long-url-input" name="newLongURL" value="<%= longURL%>"></p><button>Update</button>
     <p></p>
   </form>

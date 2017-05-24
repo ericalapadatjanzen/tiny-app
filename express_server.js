@@ -1,23 +1,36 @@
-// "use strict";
-
+ "use strict";
 const express = require("express");
-const cookieSession = require('cookie-session');
 const app = express();
 const PORT = process.env.PORT || 8080;
-const bodyParser = require("body-parser");
-const bcrypt = require('bcrypt');
 
+// Middleware
+
+// Parses the body of forms submitted
+const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({
   extended: true
 }));
 
+// Handles cookies
+const cookieSession = require('cookie-session');
 app.use(cookieSession({
   name: 'session',
   keys: [process.env.SESSION_SECRET || "development"],
   maxAge: 24 * 60 * 60 * 1000
 }));
 
+// Lets user_id and user cookies be used locally (in all .ejs files)
+app.use(function(req, res, next) {
+  res.locals.user_id = req.session.user_id;
+  res.locals.user = users[req.session.user_id];
+  next();
+});
+
+// Encrypts cookies
+const bcrypt = require('bcrypt');
 app.set("view engine", "ejs");
+
+// Hardcoded database objects containing url information and user information
 var urlDatabase = {
   "b2xVn2": {
     id: "b2xVn2",
@@ -30,7 +43,6 @@ var urlDatabase = {
     userID: "user2RandomID"
   }
 };
-
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -44,12 +56,7 @@ const users = {
   }
 };
 
-app.use(function(req, res, next) {
-  res.locals.user_id = req.session.user_id;
-  res.locals.user = users[req.session.user_id];
-  next();
-});
-
+// Generates a random 6 character string for short URLs
 function generateRandomString() {
   let text = "";
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -59,6 +66,7 @@ function generateRandomString() {
   return text;
 }
 
+// Checks if current user id cookie matches the user id in the database and returns urls
 function urlsForUser(userID) {
   const urls = {};
   for (const shortURL in urlDatabase) {
@@ -68,6 +76,10 @@ function urlsForUser(userID) {
   }
   return urls;
 }
+
+// GET END POINTS
+
+// Root page
 app.get("/", (req, res) => {
   let user_ID = req.session['user_id'];
   if (users[user_ID]) {
@@ -77,6 +89,7 @@ app.get("/", (req, res) => {
   }
 });
 
+// Main url page, if user is logged in renders their urls, else error message
 app.get("/urls", (req, res) => {
   let user_ID = req.session["user_id"];
   let filtered = urlsForUser(user_ID);
@@ -92,22 +105,7 @@ app.get("/urls", (req, res) => {
   }
 });
 
-app.post("/urls", (req, res) => {
-  let user_ID = req.session['user_id'];
-  const shortURL = generateRandomString();
-  const longURL = req.body.longURL;
-  urlDatabase[shortURL] = {
-    id: shortURL,
-    longURL: longURL,
-    userID: user_ID
-  };
-  if (!user_ID) {
-    res.status(401).send("Please <a href='/login'>login</a> to post a TinyUrl");
-  } else {
-    res.redirect('/urls/' + shortURL);
-  }
-});
-
+// New link page
 app.get("/urls/new", (req, res) => {
   let user_ID = req.session['user_id'];
   if (users[user_ID]) {
@@ -117,6 +115,7 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
+// URL edit page
 app.get("/urls/:id", (req, res) => {
   let user_ID = req.session['user_id'];
   let shortURL = req.params.id;
@@ -135,19 +134,7 @@ app.get("/urls/:id", (req, res) => {
   }
 });
 
-app.post('/urls/:id/', (req, res) => {
-  let user_ID = req.session['user_id'];
-  urlDatabase[req.params.id].longURL = req.body.newLongURL;
-  if (!user_ID) {
-    res.status(401).send("Please <a href='/login'>login</a>.");
-  }
-  if (urlDatabase[req.params.id].userID === users[req.session.user_id].id) {
-    res.redirect('/urls');
-  } else {
-    res.status(401).send("Please <a href='/login'>login</a> and try again.");
-  }
-});
-
+//Short link that redirects to long url website
 app.get("/u/:shortURL", (req, res) => {
   let user_ID = req.session['user_id'];
   let shortURL = req.params.shortURL;
@@ -162,6 +149,59 @@ app.get("/u/:shortURL", (req, res) => {
   }
 });
 
+// Login page
+app.get('/login', (req, res) => {
+  if (users[req.session.user_id]) {
+    res.redirect('/urls');
+  } else {
+    res.render('login');
+  }
+});
+
+// Register page
+app.get('/register', (req, res) => {
+  if (users[req.session.user_id]) {
+    res.redirect('/urls');
+  } else {
+    res.render('urls_registration');
+  }
+});
+
+// POSTS
+
+//Create url
+app.post("/urls", (req, res) => {
+  let user_ID = req.session['user_id'];
+  const shortURL = generateRandomString();
+  const longURL = req.body.longURL;
+  if (!user_ID) {
+    res.status(401).send("Please <a href='/login'>login</a> to post a TinyUrl");
+  } else {
+    urlDatabase[shortURL] = {
+      id: shortURL,
+      longURL: longURL,
+      userID: user_ID
+    };
+    res.redirect('/urls/' + shortURL);
+  }
+});
+
+
+// Change url
+app.post('/urls/:id/', (req, res) => {
+  let user_ID = req.session['user_id'];
+  if (!user_ID) {
+    res.status(401).send("Please <a href='/login'>login</a>.");
+  }
+  if (urlDatabase[req.params.id].userID === users[req.session.user_id].id) {
+    urlDatabase[req.params.id].longURL = req.body.newLongURL;
+    res.redirect('/urls');
+  } else {
+    res.status(401).send("Please <a href='/login'>login</a> and try again.");
+  }
+});
+
+// Delete url
 app.post('/urls/:id/delete', (req, res) => {
   let userID = req.session['user_id'];
   if (urlDatabase[req.params.id].userID === users[req.session.user_id].id) {
@@ -173,14 +213,8 @@ app.post('/urls/:id/delete', (req, res) => {
   }
 });
 
-app.get('/login', (req, res) => {
-  if (users[req.session.user_id]) {
-    res.redirect('/urls');
-  } else {
-    res.render('login');
-  }
-});
 
+// Login
 app.post('/login', (req, res) => {
   if (!req.body.email || !req.body.password) {
     res.status(403).send('Please enter both email and password.');
@@ -206,14 +240,7 @@ app.post('/logout', (req, res) => {
   res.redirect('/urls');
 });
 
-app.get('/register', (req, res) => {
-  if (users[req.session.user_id]) {
-    res.redirect('/urls');
-  } else {
-    res.render('urls_registration');
-  }
-});
-
+// Register
 app.post('/register', (req, res) => {
   if (!req.body.email || !req.body.password) {
     res.status(400).send('Email or Password not entered');
@@ -234,6 +261,7 @@ app.post('/register', (req, res) => {
   req.session["user_id"] = randomUserID;
   res.redirect('/urls');
 });
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
