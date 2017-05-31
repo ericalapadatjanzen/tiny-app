@@ -2,17 +2,19 @@
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 8080;
+const bodyParser = require("body-parser");
+const cookieSession = require('cookie-session');
 
 // Middleware
 
 // Parses the body of forms submitted
-const bodyParser = require("body-parser");
+
 app.use(bodyParser.urlencoded({
   extended: true
 }));
 
 // Handles cookies
-const cookieSession = require('cookie-session');
+
 app.use(cookieSession({
   name: 'session',
   keys: [process.env.SESSION_SECRET || "development"],
@@ -82,9 +84,13 @@ function urlsForUser(userID) {
 // Root page
 app.get("/", (req, res) => {
   let user_ID = req.session['user_id'];
-  if (users[user_ID]) {
-    res.redirect("/urls");
-  } else {
+  if(user_ID){
+
+    if (users[user_ID]) {
+      res.redirect("/urls");
+    }
+  }
+  else {
     res.redirect('/login');
   }
 });
@@ -237,7 +243,7 @@ app.post('/login', (req, res) => {
 
 app.post('/logout', (req, res) => {
   req.session = null;
-  res.redirect('/urls');
+  res.redirect('/login');
 });
 
 // Register
